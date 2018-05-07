@@ -150,7 +150,7 @@ checkTList tlist = not (hasMIN || hasContradiction)
 
 -- TListで用いられているTNameの集合を入手
 getTNames :: TList -> [TName]
-getTNames tlist = nub [k| (k,v) <- tlist]
+getTNames tlist = nub [k | (k,v) <- tlist]
 
 -- [TName]を受け取ってそこに含まれないTNameを生成する（INTに依存　もっというとmaxとsucが定義できることに依存）
 generateTName :: [TName] -> TName
@@ -175,8 +175,8 @@ isSatisfiableTList tlist
 		   | orpropagatable /= []  = let (n, OR c1 c2) = head orpropagatable;  temp1 = (union tlist [(n,c1)]); temp2 = (union tlist [(n,c2)])
 		     		       	     in  ((checkTList temp1) && (isSatisfiableTList temp1)) || ((checkTList temp2) && (isSatisfiableTList temp2))
 		   | otherwise = True
-		     	       where andpropagatable = [x| x<-tlist, andPropagatable x tlist]
-			       	     orpropagatable = [x| x<-tlist, orPropagatable x tlist]
+		     	       where andpropagatable = [x | x<-tlist, andPropagatable x tlist]
+			       	     orpropagatable = [x | x<-tlist, orPropagatable x tlist]
 
 
 -- この推論処理全体をラッピングする関数
@@ -219,15 +219,15 @@ isSatisfiableTRList tlist rlist
 						   tempr = union rlist [(r,x,y)]
 					       in  (checkTList tempt) && (isSatisfiableTRList tempt tempr)
                     | anypropagatable /= [] = let (x, ANY r c) = head anypropagatable;
-						  ys = [y|(r',x',y)<-rlist, x==x', r==r'];
+						  ys = [y |(r',x',y)<-rlist, x==x', r==r'];
 						  y = head ys;
 						  tempt = union tlist [(y,c)]
 		      		      	      in (checkTList tempt) && (isSatisfiableTRList tempt rlist)
 		    | otherwise = True
-		     	       where andpropagatable = [x| x<-tlist, andPropagatable x tlist]
-			       	     orpropagatable = [x| x<-tlist, orPropagatable x tlist]
-				     somepropagatable = [x|x<-tlist, somePropagatable x tlist rlist]
-				     anypropagatable = [x|x<-tlist, anyPropagatable x tlist rlist]
+		     	       where andpropagatable = [x | x<-tlist, andPropagatable x tlist]
+			       	     orpropagatable = [x | x<-tlist, orPropagatable x tlist]
+				     somepropagatable = [x |x<-tlist, somePropagatable x tlist rlist]
+				     anypropagatable = [x |x<-tlist, anyPropagatable x tlist rlist]
 
 -- someとanyの条件判定
 somePropagatable :: (TName, Concept) -> TList -> RList -> Bool
