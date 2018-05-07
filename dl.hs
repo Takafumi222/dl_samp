@@ -91,8 +91,9 @@ toSimpleConcept (MAX) = MAX
 toSimpleConcept (MIN) = MIN
 toSimpleConcept (AND c0 c1) = AND (toSimpleConcept c0) (toSimpleConcept c1)
 toSimpleConcept (OR c0 c1) = OR (toSimpleConcept c0) (toSimpleConcept c1)
+toSimpleConcept (ANY r c) = ANY r (toSimpleConcept c)
 toSimpleConcept (SOME r c) = SOME r (toSimpleConcept c)
-toSimpleconcept (ANY r c) = ANY r (toSimpleConcept c)
+
 
 toSimpleConceptNot :: Concept -> Concept
 toSimpleConceptNot (AtomicConcept a) = NOT (AtomicConcept a)
@@ -196,3 +197,43 @@ tc3= (male `OR` (NOT male))
 tt1 = NOT (male `AND` (NOT male))
 tt2 = male `OR` (NOT male)
 tt3 = ((NOT male) `OR` ((NOT human) `OR` male))
+
+
+
+---------------------------------------------------------------------------------
+-- RListも含む場合へ拡張
+type RList = [(Role, TName, TName)]
+
+initialname' = 1 :: TName
+isSatisfiable' :: Concept -> Bool
+isSatisfiable' c = isSatisfiableTRList [(initialname, toSimpleConcept c)] []
+
+isSatisfiableTRList :: TList -> RList -> Bool
+isSatisfiableTRList tlist rlist
+		    | andpropagatable /= [] = let (n, AND c1 c2) = head andpropagatable;  temp1 = (union tlist [(n,c1),(n,c2)]) in  (checkTList temp1) && (isSatisfiableTRList temp1 rlist) 
+		    | orpropagatable /= []  = let (n, OR c1 c2) = head orpropagatable;  temp1 = (union tlist [(n,c1)]); temp2 = (union tlist [(n,c2)])
+		     		       	     in  ((checkTList temp1) && (isSatisfiableTRList temp1 rlist)) || ((checkTList temp2) && (isSatisfiableTRList temp2 rlist))
+		    | somepropagatable /= [] = let (x, SOME r c) = head somepropagatable;
+		      		       	       	   y = generateTName $ getTNames tlist
+		      		       	       	   tempt = union tlist [(y,c)];
+						   tempr = union rlist [(r,x,y)]
+					       in  (checkTList tempt) && (isSatisfiableTRList tempt tempr)
+                    | anypropagatable /= [] = let (x, ANY r c) = head anypropagatable;
+						  ys = [y|(r',x',y)<-rlist, x==x', r==r'];
+						  y = head ys;
+						  tempt = union tlist [(y,c)]
+		      		      	      in (checkTList tempt) && (isSatisfiableTRList tempt rlist)
+		    | otherwise = True
+		     	       where andpropagatable = [x| x<-tlist, andPropagatable x tlist]
+			       	     orpropagatable = [x| x<-tlist, orPropagatable x tlist]
+				     somepropagatable = [x|x<-tlist, somePropagatable x tlist rlist]
+				     anypropagatable = [x|x<-tlist, anyPropagatable x tlist rlist]
+
+-- someとanyの条件判定
+somePropagatable :: (TName, Concept) -> TList -> RList -> Bool
+somePropagatable (tname, (SOME r c)) tlist rlist = ([] == [(role,x,z)| (role,x,z) <- rlist, x==tname && role == r && elem (z,c) tlist])
+somePropagatable temp tlist rlist = False
+
+anyPropagatable :: (TName, Concept) -> TList -> RList -> Bool 
+anyPropagatable (tname, (ANY r c)) tlist rlist = ([] /= [(role,x,y)| (role,x,y) <- rlist, x==tname && role == r && (not (elem (y,c) tlist))])
+anyPropagatable temp tlist rlist = False
