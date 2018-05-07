@@ -146,7 +146,7 @@ checkTList :: TList -> Bool
 checkTList tlist = not (hasMIN || hasContradiction)
 	   where
 		hasMIN = ([] /= [(k,v)| (k,v) <- tlist, v == MIN])
-		hasContradiction = ([] /= [e| e <- tlist, isContradict e tlist]) 
+		hasContradiction = ([] /= [e | e <- tlist, isContradict e tlist]) 
 
 -- TListで用いられているTNameの集合を入手
 getTNames :: TList -> [TName]
