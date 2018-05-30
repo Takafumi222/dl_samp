@@ -1,7 +1,7 @@
 import Data.List (union, intersect, nub, elem, sort)
 import Test.HUnit
 
-import Debug.Trace
+-- import Debug.Trace
 
 -- import qualified DLreasoner as DL
 
@@ -157,7 +157,7 @@ reporting :: PTName -> PConcept -> TNumber -> [PConcept] -> PararellTableauNode 
 reporting ptname pconcept (No tnumber) cbars paratab'
   | paratab == []          = [] :: [PararellTableauNode]
   
-  | andpropagatable /= []  = let (n, AND c1 c2) = trace (show (paratab)) head andpropagatable;
+  | andpropagatable /= []  = let (n, AND c1 c2) = head andpropagatable;
                                  temp1  = addPTList n c1 (No tnumber) [paratab];
                                  temp2  = addPTList n c2 (No tnumber) temp1;
                                  temp3  = concat $ map (\p -> reporting n c1 (delta c1 (No tnumber)) cbars p) temp2;
@@ -166,7 +166,7 @@ reporting ptname pconcept (No tnumber) cbars paratab'
                              in
                                  checkPararellTableauNodes temp4
 
-  | orpropagatable /= []   = let (n, OR c1 c2) = trace (show (paratab)) head orpropagatable;
+  | orpropagatable /= []   = let (n, OR c1 c2) =head orpropagatable;
                                  temp1_1 = addPTList n c1 (No tnumber) [paratab];
                                  temp1_2 = concat $ map (\p -> reporting n c1 (delta c1 (No tnumber)) cbars p) temp1_1;
                                  temp2_1 = addPTList n c2 (No tnumber) [paratab];
